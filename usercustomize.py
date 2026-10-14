@@ -5,3 +5,8 @@ try:
     apply_v10()
 except Exception as exc:
     print('MINUKIMI v1.0 overlay failed:', repr(exc))
+
+try:
+    import minukimi_v11
+except Exception as exc:
+    print('MINUKIMI v1.1 product shell failed:', repr(exc))
