@@ -1,0 +1,67 @@
+name: Signature heart E2E
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  heart:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.51.1 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+      - name: Verify signature heart interaction
+        run: |
+          cat > heart-e2e.js <<'EOF'
+          const { chromium } = require('playwright');
+          const assert = (v,m)=>{ if(!v) throw new Error(m); };
+          const LEFT='M8 58 C32 88 68 89 99 73 C114 65 129 64 137 77 C121 63 109 53 105 41 C101 28 108 19 119 18 C127 17 134 21 137 27';
+          const RIGHT='M155 27 C158 21 165 17 173 18 C184 19 191 28 187 41 C183 53 171 63 155 77 C163 64 178 65 193 73 C224 89 260 88 284 58';
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:390,height:844}});
+            await page.goto('https://minukimi-ux-test.onrender.com/',{waitUntil:'networkidle',timeout:90000});
+            assert(await page.locator('body').getAttribute('data-ui-v10')==='true','v1.0 marker missing');
+            assert(await page.locator('#minukimi-signature-heart-v10').count()===1,'v1.0 CSS missing');
+            assert(await page.locator('#minukimi-signature-heart-runtime-v10').count()===1,'v1.0 runtime missing');
+
+            await page.locator('#splash button.cta').click();
+            await page.locator('#on1 button.cta').click();
+            await page.waitForSelector('#on2.active');
+            const teachLeft=await page.locator('#on2 .mk-teach-card.like .mk-teach-line.left').getAttribute('d');
+            const teachRight=await page.locator('#on2 .mk-teach-card.like .mk-teach-line.right').getAttribute('d');
+            assert(teachLeft===LEFT,'teaching left half is not the signature heart geometry');
+            assert(teachRight===RIGHT,'teaching right half is not the signature heart geometry');
+            assert((await page.locator('#on2 .mk-teach-heart').evaluate(el=>getComputedStyle(el).display))==='none','extra traced heart is still visible');
+
+            await page.evaluate(()=>{profiles=[baseProfiles[0]];idx=0;show('discover');loadCard()});
+            await page.waitForSelector('#card');
+            assert((await page.locator('#leftHalf .sig-line').getAttribute('d'))===LEFT,'discovery left half geometry mismatch');
+            assert((await page.locator('#rightHalf .sig-line').getAttribute('d'))===RIGHT,'discovery right half geometry mismatch');
+            assert((await page.locator('.heart-trace').evaluate(el=>getComputedStyle(el).display))==='none','legacy traced heart visible');
+
+            const box=await page.locator('#leftHalf .hit-line').boundingBox();
+            assert(box,'left gesture hit target missing');
+            const x=box.x+Math.min(25,box.width*.35), y=box.y+box.height*.55;
+            await page.mouse.move(x,y);await page.mouse.down();await page.mouse.move(x+42,y,{steps:8});await page.mouse.up();
+            await page.waitForSelector('#connection.connected',{timeout:3000});
+            const lt=await page.locator('#leftHalf').getAttribute('style');
+            const rt=await page.locator('#rightHalf').getAttribute('style');
+            assert((lt||'').includes('translateX(9px)'),'left half did not snap to heart');
+            assert((rt||'').includes('translateX(-9px)'),'right half did not snap to heart');
+            await page.waitForSelector('#toast.show',{timeout:3000});
+            assert((await page.locator('#toast').innerText()).includes('I see it.'),'reward confirmation missing');
+            await page.waitForSelector('.mk-heart-event',{timeout:3000});
+            await browser.close();
+            console.log('Signature heart E2E passed');
+          })().catch(e=>{console.error(e);process.exit(1)});
+          EOF
+          node heart-e2e.js
