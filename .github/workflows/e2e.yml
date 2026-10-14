@@ -28,17 +28,21 @@ jobs:
           (async()=>{
             const browser=await chromium.launch({headless:true});
             const page=await browser.newPage({viewport:{width:390,height:844}});
+            await page.route('https://geocoding-api.open-meteo.com/**',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({results:[{name:'Lisbon',admin1:'Lisbon',country:'Portugal'}]})}));
             await page.goto('https://minukimi-ux-test.onrender.com/',{waitUntil:'networkidle',timeout:90000});
             assert(await page.locator('body').getAttribute('data-ui-patch')==='full-v4','v4 marker missing');
+            assert(await page.locator('body').getAttribute('data-ui-v09')==='true','v0.9 marker missing');
             const bodyText=await page.locator('body').innerText();
             assert(!bodyText.includes('—')&&!bodyText.includes('–'),'long dash remains in visible copy');
-            assert((await page.locator('#splash .status').evaluate(el=>getComputedStyle(el).display))==='none','fake time still visible');
+            assert(await page.locator('.status').evaluateAll(els=>els.every(el=>getComputedStyle(el).display==='none')),'fake time/status chrome still visible');
 
             await page.locator('#splash button.cta').click();
             assert(await page.locator('#on1').evaluate(el=>el.classList.contains('active')),'intro 2 did not open');
             assert((await page.locator('#on1').innerText()).includes('Finish the sentence'),'prompt meaning missing');
             await page.locator('#on1 button.cta').click();
             assert(await page.locator('#on2').evaluate(el=>el.classList.contains('active')),'gesture intro did not open');
+            const gestureIntro=await page.locator('#on2').innerText();
+            assert(gestureIntro.includes('Like them?')&&gestureIntro.includes('Not for you?'),'gesture tutorial does not teach both choices');
             await page.locator('#on2 button.cta').click();
 
             await page.selectOption('#ageGroup','30-34');
@@ -60,7 +64,10 @@ jobs:
 
             await page.fill('#mkName','Alex');
             await page.fill('#mkAge','34');
-            await page.fill('#mkCity','Lisbon');
+            await page.fill('#mkCity','Lis');
+            await page.waitForSelector('#mkCitySuggestions.show .city-option',{timeout:5000});
+            await page.locator('#mkCitySuggestions .city-option').first().click();
+            assert((await page.inputValue('#mkCity')).includes('Lisbon'),'city was not normalized from suggestions');
             await page.selectOption('#mkLooking','Everyone');
             await page.selectOption('#mkGoal','Long-term, open to see');
             await page.locator('#profileBasics .cta').click();
@@ -73,15 +80,20 @@ jobs:
 
             const promptSize=await page.locator('.prompt .text').first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
             assert(promptSize<=14,'prompt typography is still too large');
-            const footerBg=await page.locator('.card-footer').first().evaluate(el=>getComputedStyle(el).backgroundImage);
-            assert(footerBg.includes('gradient'),'connect footer lacks refined glass treatment');
+            assert((await page.locator('.handle-mark').first().evaluate(el=>getComputedStyle(el).display))==='none','gesture artifact marks still visible');
+            const cardBox=await page.locator('.profile-card').boundingBox();
+            const contentBox=await page.locator('.card-content').boundingBox();
+            const footerBox=await page.locator('.card-footer').boundingBox();
+            assert(Math.abs(contentBox.x-footerBox.x)<2,'connect panel is not aligned with profile info');
+            assert(footerBox.width < cardBox.width,'connect panel should sit inside the card edges');
             await page.locator('.connect-fallback').first().click();
             await page.waitForSelector('#toast.show');
             assert((await page.locator('#toast').innerText())==='I see it.','connect toast missing');
-            await page.waitForTimeout(700);
+            assert(await page.locator('#toast .mk-toast-spark').count()>=4,'connect confirmation sparks missing');
+            await page.waitForTimeout(1200);
             assert(await page.locator('#toast').evaluate(el=>el.classList.contains('show')),'toast disappears too fast');
             await browser.close();
-            console.log('MINUKIMI browser E2E passed');
+            console.log('MINUKIMI v0.9 browser E2E passed');
           })().catch(e=>{console.error(e);process.exit(1)});
           EOF
           node e2e.js
