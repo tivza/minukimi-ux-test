@@ -26,7 +26,7 @@ jobs:
           (async()=>{
             const browser=await chromium.launch({headless:true});
             const page=await browser.newPage({viewport:{width:390,height:844}});
-            await page.goto('https://minukimi-ux-test.onrender.com/',{waitUntil:'networkidle',timeout:90000});
+            await page.goto('https://minukimi-ux-test.onrender.com/',{waitUntil:'domcontentloaded',timeout:90000});
             await page.waitForFunction(()=>document.body.dataset.uiV12==='true');
             const body=await page.locator('body').innerText();
             assert(body.includes("Someone you haven't met yet."),'onboarding missing');
@@ -43,7 +43,7 @@ jobs:
               localStorage.setItem('mk_onboarded_v12','1');
               localStorage.setItem('mk_profile_v12',JSON.stringify({name:'Alex',age:34,city:'Lisbon, Portugal',job:'Designer',looking:'Everyone',goal:'Long-term relationship',prompt:'already living near the sea, wearing linen and kissing first.',photo:'',photoOk:true,focusX:50,focusY:30,zoom:1}));
             });
-            await page.reload({waitUntil:'networkidle'});
+            await page.reload({waitUntil:'domcontentloaded',timeout:30000});
             await page.waitForSelector('#discover.active');
             assert(await page.locator('.profile-card').count()===1,'profile card missing');
             assert((await page.locator('#leftHalf .sig-line').getAttribute('d'))===LEFT,'discovery heart left mismatch');
