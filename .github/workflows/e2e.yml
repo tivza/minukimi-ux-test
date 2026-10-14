@@ -1,0 +1,88 @@
+name: Browser E2E
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.51.1 >/dev/null 2>&1
+          npx playwright install --with-deps chromium >/dev/null 2>&1
+      - name: Browser flow
+        run: |
+          cat > /tmp/e2e.js <<'EOF'
+          const { chromium } = require('playwright');
+          const fs = require('fs');
+          const { execSync } = require('child_process');
+          const assert = (v,m)=>{ if(!v) throw new Error(m); };
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({viewport:{width:390,height:844}});
+            await page.goto('https://minukimi-ux-test.onrender.com/',{waitUntil:'networkidle',timeout:90000});
+            assert(await page.locator('body').getAttribute('data-ui-patch')==='full-v4','v4 marker missing');
+            const bodyText=await page.locator('body').innerText();
+            assert(!bodyText.includes('—')&&!bodyText.includes('–'),'long dash remains in visible copy');
+            assert((await page.locator('#splash .status').evaluate(el=>getComputedStyle(el).display))==='none','fake time still visible');
+
+            await page.locator('#splash button.cta').click();
+            assert(await page.locator('#on1').evaluate(el=>el.classList.contains('active')),'intro 2 did not open');
+            assert((await page.locator('#on1').innerText()).includes('Finish the sentence'),'prompt meaning missing');
+            await page.locator('#on1 button.cta').click();
+            assert(await page.locator('#on2').evaluate(el=>el.classList.contains('active')),'gesture intro did not open');
+            await page.locator('#on2 button.cta').click();
+
+            await page.selectOption('#ageGroup','30-34');
+            await page.locator('#frequencyChoice button[data-v="sometimes"]').click();
+            await page.locator('#intake .cta').click();
+            await page.waitForSelector('#profilePhoto.active');
+            assert((await page.locator('#profilePhoto').innerText()).includes('One clear face only'),'main photo rule missing');
+
+            fs.writeFileSync('/tmp/noface.svg','<svg xmlns="http://www.w3.org/2000/svg" width="500" height="700"><rect width="500" height="700" fill="#ddd"/></svg>');
+            await page.setInputFiles('#mkPhotoInput','/tmp/noface.svg');
+            await page.waitForFunction(()=>document.querySelector('#mkPhotoStatus')?.textContent.includes('No clear human face')||document.querySelector('#mkPhotoStatus')?.textContent.includes('Face check could not start'),{timeout:45000});
+            const rejected=await page.locator('#mkPhotoNext').isDisabled();
+            assert(rejected,'no-face image was accepted');
+
+            execSync("curl -fsSL 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=900&q=80' -o /tmp/face.jpg");
+            await page.setInputFiles('#mkPhotoInput','/tmp/face.jpg');
+            await page.waitForFunction(()=>document.querySelector('#mkPhotoStatus')?.textContent.startsWith('Good.'),{timeout:45000});
+            assert(!(await page.locator('#mkPhotoNext').isDisabled()),'human face did not pass gate');
+            await page.locator('#mkPhotoNext').click();
+
+            await page.fill('#mkName','Alex');
+            await page.fill('#mkAge','34');
+            await page.fill('#mkCity','Lisbon');
+            await page.selectOption('#mkLooking','Everyone');
+            await page.selectOption('#mkGoal','Long-term, open to see');
+            await page.locator('#profileBasics .cta').click();
+            await page.fill('#mkPrompt','already living near the sea, wearing linen and kissing first.');
+            await page.locator('#profilePrompt .cta').click();
+            await page.waitForSelector('#profilePreview.active');
+            assert((await page.locator('#mkPreviewPrompt').innerText()).length>10,'profile preview prompt missing');
+            await page.locator('#profilePreview .cta').click();
+            await page.waitForSelector('#discover.active');
+
+            const promptSize=await page.locator('.prompt .text').first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
+            assert(promptSize<=14,'prompt typography is still too large');
+            const footerBg=await page.locator('.card-footer').first().evaluate(el=>getComputedStyle(el).backgroundImage);
+            assert(footerBg.includes('gradient'),'connect footer lacks refined glass treatment');
+            await page.locator('.connect-fallback').first().click();
+            await page.waitForSelector('#toast.show');
+            assert((await page.locator('#toast').innerText())==='I see it.','connect toast missing');
+            await page.waitForTimeout(700);
+            assert(await page.locator('#toast').evaluate(el=>el.classList.contains('show')),'toast disappears too fast');
+            await browser.close();
+            console.log('MINUKIMI browser E2E passed');
+          })().catch(e=>{console.error(e);process.exit(1)});
+          EOF
+          node /tmp/e2e.js
