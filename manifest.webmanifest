@@ -1,0 +1,14 @@
+{
+  "name": "MINUKIMI",
+  "short_name": "MINUKIMI",
+  "description": "A more intentional way to meet someone.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fbfbff",
+  "theme_color": "#fbfbff",
+  "orientation": "portrait-primary",
+  "icons": [
+    {"src":"icons/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}
+  ]
+}
