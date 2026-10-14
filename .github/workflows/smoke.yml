@@ -25,17 +25,21 @@ jobs:
             fi
             sleep 10
           done
-      - name: Verify tester page and v0.8 UI
+      - name: Verify tester page and v0.9 UI
         run: |
           set -euo pipefail
           HTML=$(curl -fsS --max-time 30 https://minukimi-ux-test.onrender.com/)
           [[ "$HTML" == *"MINUKIMI"* ]]
           [[ "$HTML" == *"In my head, I’m"* ]]
           [[ "$HTML" == *'data-ui-patch="full-v4"'* ]]
+          [[ "$HTML" == *'data-ui-v09="true"'* ]]
           [[ "$HTML" == *'id="profilePhoto"'* ]]
           [[ "$HTML" == *'id="profileBasics"'* ]]
           [[ "$HTML" == *'id="profilePrompt"'* ]]
           [[ "$HTML" == *'id="profilePreview"'* ]]
+          [[ "$HTML" == *'id="mkCitySuggestions"'* ]]
+          [[ "$HTML" == *"Like them?"* ]]
+          [[ "$HTML" == *"Not for you?"* ]]
           [[ "$HTML" == *"Exactly one human face"* || "$HTML" == *"exactly one human face"* ]]
           [[ "$HTML" == *"I see it."* ]]
           [[ "$HTML" == *"Saving your responses"* ]]
