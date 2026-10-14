@@ -41,6 +41,9 @@ jobs:
             const rt=await page.locator('#rightHalf').getAttribute('style');
             assert((lt||'').includes('translateX(9px)'),'left half did not connect');
             assert((rt||'').includes('translateX(-9px)'),'right half did not connect');
+            const glowStyle=await page.locator('#connection .sig-glow').first().getAttribute('style');
+            assert((glowStyle||'').includes('opacity: 1'),'connected glow did not ignite');
+            assert((glowStyle||'').includes('drop-shadow'),'connected glow filter missing');
             await page.screenshot({path:'heart-connected.png',fullPage:true});
             await browser.close();
           })().catch(e=>{console.error(e);process.exit(1)});
