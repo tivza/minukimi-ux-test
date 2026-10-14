@@ -1,0 +1,39 @@
+name: Public smoke test
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for service and verify health
+        run: |
+          set -euo pipefail
+          URL="https://minukimi-ux-test.onrender.com"
+          for i in {1..12}; do
+            BODY=$(curl -fsS --max-time 20 "$URL/api/health" || true)
+            if echo "$BODY" | grep -q '"ok": true' && echo "$BODY" | grep -q '"database": "postgres"'; then
+              echo "$BODY"
+              break
+            fi
+            if [ "$i" -eq 12 ]; then
+              echo "Health check failed: $BODY"
+              exit 1
+            fi
+            sleep 10
+          done
+      - name: Verify tester page
+        run: |
+          set -euo pipefail
+          HTML=$(curl -fsS --max-time 30 https://minukimi-ux-test.onrender.com/)
+          echo "$HTML" | grep -q "MINUKIMI"
+          echo "$HTML" | grep -q "In my head, I’m"
+      - name: Verify research dashboard
+        run: |
+          set -euo pipefail
+          HTML=$(curl -fsS --max-time 30 https://minukimi-ux-test.onrender.com/dashboard.html)
+          echo "$HTML" | grep -q "Research dashboard"
+          echo "$HTML" | grep -q "Admin token"
