@@ -1,10 +1,8 @@
 name: Browser E2E
-
 on:
   push:
     branches: [main]
   workflow_dispatch:
-
 jobs:
   e2e:
     runs-on: ubuntu-latest
@@ -23,39 +21,50 @@ jobs:
           cat > e2e.js <<'EOF'
           const { chromium } = require('playwright');
           const assert=(v,m)=>{if(!v)throw new Error(m)};
+          const LEFT='M8 58 C32 88 68 89 99 73 C114 65 129 64 137 77 C121 63 109 53 105 41 C101 28 108 19 119 18 C127 17 134 21 137 27';
+          const RIGHT='M155 27 C158 21 165 17 173 18 C184 19 191 28 187 41 C183 53 171 63 155 77 C163 64 178 65 193 73 C224 89 260 88 284 58';
           (async()=>{
             const browser=await chromium.launch({headless:true});
             const page=await browser.newPage({viewport:{width:390,height:844}});
             await page.goto('https://minukimi-ux-test.onrender.com/',{waitUntil:'networkidle',timeout:90000});
-            assert(await page.locator('body').getAttribute('data-ui-v11')==='true','v1.1 shell missing');
-            const text=await page.locator('body').innerText();
-            assert(text.includes('Someone you haven\'t met yet.'),'onboarding missing');
-            assert(!text.includes('9:41'),'fake time remains');
-            await page.locator('#on1 .cta').click();
-            await page.locator('#on2 .cta').click();
-            assert((await page.locator('#on3').innerText()).includes("Don't swipe right. Connect."),'gesture onboarding missing');
-            await page.locator('#on3 .cta').click();
+            await page.waitForFunction(()=>document.body.dataset.uiV12==='true');
+            const body=await page.locator('body').innerText();
+            assert(body.includes("Someone you haven't met yet."),'onboarding missing');
+            assert(!body.includes('9:41'),'fake status time remains');
+            await page.locator('#on1Next').click();
+            await page.locator('#on2Next').click();
+            assert((await page.locator('#on3').innerText()).includes("Don't swipe right. Connect."),'gesture education missing');
+            assert((await page.locator('#on3 .teach-card.like .half.left').getAttribute('d'))===LEFT,'onboarding heart left mismatch');
+            assert((await page.locator('#on3 .teach-card.like .half.right').getAttribute('d'))===RIGHT,'onboarding heart right mismatch');
+            await page.locator('#on3Next').click();
             await page.waitForSelector('#profilePhoto.active');
-            assert((await page.locator('#profilePhoto').innerText()).includes('One clear face'),'photo rule missing');
+            assert((await page.locator('#profilePhoto').innerText()).includes('One clear human face only'),'main-photo rule missing');
             await page.evaluate(()=>{
-              localStorage.setItem('mk_onboarded_v11','1');
-              localStorage.setItem('mk_profile_v11',JSON.stringify({name:'Alex',age:'34',city:'Lisbon, Portugal',job:'Designer',looking:'Everyone',goal:'Long-term relationship',prompt:'already living near the sea and learning to surf.',photo:''}));
+              localStorage.setItem('mk_onboarded_v12','1');
+              localStorage.setItem('mk_profile_v12',JSON.stringify({name:'Alex',age:34,city:'Lisbon, Portugal',job:'Designer',looking:'Everyone',goal:'Long-term relationship',prompt:'already living near the sea, wearing linen and kissing first.',photo:'',photoOk:true,focusX:50,focusY:30,zoom:1}));
             });
             await page.reload({waitUntil:'networkidle'});
             await page.waitForSelector('#discover.active');
-            assert(await page.locator('.profile-card').count()===1,'discovery card missing');
-            assert(await page.locator('.live-heart .half.left').count()===1,'signature left half missing');
-            assert(await page.locator('.live-heart .half.right').count()===1,'signature right half missing');
+            assert(await page.locator('.profile-card').count()===1,'profile card missing');
+            assert((await page.locator('#leftHalf .sig-line').getAttribute('d'))===LEFT,'discovery heart left mismatch');
+            assert((await page.locator('#rightHalf .sig-line').getAttribute('d'))===RIGHT,'discovery heart right mismatch');
             const bg=await page.locator('.heart-zone').evaluate(el=>getComputedStyle(el).backgroundColor);
-            assert(bg==='rgba(0, 0, 0, 0)','heart has a matte panel');
+            assert(bg==='rgba(0, 0, 0, 0)','matte heart panel returned');
+            const promptSize=await page.locator('.card-prompt div').evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
+            assert(promptSize<=14,'profile prompt too large');
             await page.locator('.connect-pill').click();
+            await page.waitForSelector('#connection.connected',{timeout:3000});
             await page.waitForSelector('#toast.show',{timeout:3000});
-            assert((await page.locator('#toast').innerText()).includes('I see it.'),'connect reward missing');
-            await page.locator('[data-nav="myProfile"]').click();
+            assert((await page.locator('#toast').innerText()).includes('I see it.'),'reward missing');
+            await page.waitForSelector('#matchModal.show',{timeout:4000});
+            await page.getByRole('button',{name:'Say hi'}).click();
+            await page.waitForSelector('#chat.active');
+            assert((await page.locator('#chat').innerText()).includes('You found each other'),'chat missing');
+            await page.evaluate(()=>nav('myProfile'));
             await page.waitForSelector('#myProfile.active');
-            assert((await page.locator('#myProfile').innerText()).includes('Edit profile'),'my profile screen missing');
+            assert((await page.locator('#myProfile').innerText()).includes('Edit signature line'),'profile screen missing');
             await browser.close();
-            console.log('MINUKIMI v1.1 E2E passed');
+            console.log('MINUKIMI v1.2 E2E passed');
           })().catch(e=>{console.error(e);process.exit(1)});
           EOF
           node e2e.js
