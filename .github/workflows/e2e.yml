@@ -61,8 +61,9 @@ jobs:
             await page.waitForSelector('#chat.active');
             assert((await page.locator('#chat').innerText()).includes('You found each other'),'chat missing');
             await page.evaluate(()=>nav('myProfile'));
-            await page.waitForSelector('#myProfile.active');
-            assert((await page.locator('#myProfile').innerText()).includes('Edit signature line'),'profile screen missing');
+            await page.waitForSelector('#myProfile.active #saveEdit');
+            assert((await page.locator('#meName').innerText())==='Alex, 34','profile identity did not hydrate');
+            assert((await page.locator('#myProfile').innerText()).toLowerCase().includes('edit signature line'),'profile controls missing');
             await browser.close();
             console.log('MINUKIMI v1.2 E2E passed');
           })().catch(e=>{console.error(e);process.exit(1)});
