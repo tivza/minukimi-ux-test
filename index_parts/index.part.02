@@ -1,0 +1,46 @@
+:blur(18px);border:1px solid rgba(255,255,255,.94);box-shadow:var(--soft-shadow);display:grid;grid-template-columns:repeat(4,1fr);z-index:30}.nav-item{border:0;background:transparent;color:#9a9cac;font-size:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}.nav-item svg{width:20px;height:20px}.nav-item.active{color:#6657d5}.nav-item .navdot{width:4px;height:4px;border-radius:50%;background:currentColor;opacity:0}.nav-item.active .navdot{opacity:1}
+/* chats */
+.list-screen{padding-bottom:84px;overflow:auto}.section-title{padding:6px 20px 12px}.section-title h1{font-family:Georgia,serif;font-size:34px;font-weight:500;margin:0}.section-title p{margin:5px 0 0;color:var(--muted);font-size:13px}.chat-list{padding:0 14px}.chat-row{display:grid;grid-template-columns:54px 1fr auto;gap:12px;align-items:center;padding:12px;border-radius:18px}.chat-row:hover{background:rgba(169,149,255,.06)}.avatar{width:54px;height:54px;border-radius:50%;background:linear-gradient(145deg,#ffbec8,#b9adff);display:grid;place-items:center;color:white;font-weight:800}.chat-row b{font-size:14px}.chat-row p{margin:4px 0 0;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}.chat-row time{font-size:10px;color:#aaa}
+/* chat */
+.chat-screen{background:linear-gradient(180deg,#fbfbff,#f7f8ff)}.chat-head{height:64px;padding:8px 14px;border-bottom:1px solid var(--border);display:grid;grid-template-columns:40px 1fr 40px;align-items:center}.chat-head .who{text-align:center}.chat-head b{font-size:14px}.chat-head small{display:block;color:var(--muted);font-size:10px;margin-top:2px}.messages{flex:1;overflow:auto;padding:18px 16px 96px;display:flex;flex-direction:column;gap:10px}.bubble{max-width:78%;padding:11px 13px;border-radius:18px;font-size:14px;line-height:1.45}.bubble.them{align-self:flex-start;background:white;border:1px solid var(--border);border-bottom-left-radius:6px}.bubble.me{align-self:flex-end;color:white;background:linear-gradient(135deg,#8c7aeb,#6b68d8);border-bottom-right-radius:6px}.composer{position:absolute;left:12px;right:12px;bottom:14px;height:62px;border-radius:22px;background:white;border:1px solid var(--border);display:grid;grid-template-columns:1fr 46px;align-items:center;padding:8px 9px 8px 14px;box-shadow:var(--soft-shadow)}.composer input{border:0;outline:0;background:transparent;color:var(--ink)}.send{width:44px;height:44px;border:0;border-radius:16px;background:linear-gradient(140deg,var(--coral),var(--lilac));color:white;font-size:18px}
+/* profile */
+.profile-screen{overflow:auto;padding-bottom:92px}.me-hero{margin:0 14px;border-radius:28px;padding:24px;background:linear-gradient(135deg,rgba(169,149,255,.16),rgba(127,217,200,.15));border:1px solid rgba(169,149,255,.12)}.me-avatar{width:78px;height:78px;border-radius:24px;background:linear-gradient(145deg,#e7ddff,#b7e8dc);margin-bottom:16px;display:grid;place-items:center;font-size:28px}.me-hero h2{font-size:25px;margin:0}.me-hero p{font-size:13px;color:var(--muted);line-height:1.5}.edit-block{margin:14px;border-radius:24px;background:white;border:1px solid var(--border);padding:18px}.edit-block label{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px}.edit-block textarea{width:100%;min-height:100px;border:1px solid var(--border);border-radius:16px;padding:12px;resize:none;outline:0}.limit{font-size:11px;color:var(--muted);text-align:right;margin-top:6px}.save{width:100%;margin-top:10px}
+/* stop modal */
+.stop-card{background:white;border-radius:28px;padding:22px;text-align:left;width:100%;box-shadow:0 28px 80px rgba(20,22,33,.25)}.stop-card .k{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border-radius:999px;background:rgba(255,125,146,.10);color:#cc5269;font-weight:800;font-size:12px}.stop-card h3{font-family:Georgia,serif;font-size:30px;font-weight:500;margin:13px 0 8px}.stop-card p{color:var(--muted);font-size:13px;line-height:1.5}.stop-grid{display:grid;gap:8px;margin-top:16px}.danger{background:#2e303d}.report{background:#fff;color:#b64d60;border:1px solid rgba(182,77,96,.18)}
+/* helper */
+.small-note{font-size:11px;color:var(--muted)}
+@media(max-height:760px){.phone{height:calc(100vh - 8px);min-height:620px;border-radius:26px}.app{padding:4px}.splash-art{height:270px}.stack{min-height:470px}.card-content{bottom:112px}.prompt .text{font-size:16px}}.app{padding:4px}.splash-art{height:270px}.char-disc.one{left:26px;top:92px;transform:scale(.86)}.char-disc.two{right:20px;top:118px;transform:scale(.86)}.char-disc.overlap{top:145px;transform:translateX(-50%) scale(.88)}.relation-core{top:160px}.stack{min-height:470px}.card-content{bottom:112px}.prompt .text{font-size:16px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="bg-lines" aria-hidden="true"><svg viewBox="0 0 1200 900" preserveAspectRatio="none"><defs><linearGradient id="ga" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff7898"/><stop offset=".52" stop-color="#c69cff"/><stop offset="1" stop-color="#8f82ff"/></linearGradient><linearGradient id="gb" x1="1" y1="0" x2="0" y2="1"><stop stop-color="#73d8c7"/><stop offset=".52" stop-color="#8fb9ff"/><stop offset="1" stop-color="#a998ff"/></linearGradient></defs><path class="a" d="M-110 155 C115 40 220 205 390 180 C570 152 598 68 770 112 C948 158 1022 306 1310 210 C1070 335 954 392 790 356 C604 316 523 415 357 413 C168 410 70 330 -80 412 C120 444 222 548 388 526 C566 500 602 610 792 586 C970 562 1078 674 1300 620"/><path class="b" d="M-90 304 C132 398 243 117 430 218 C590 304 676 364 840 305 C1012 243 1102 294 1300 352 C1085 420 1002 515 826 486 C646 456 548 388 372 477 C190 568 64 523 -95 575 C103 592 214 700 397 662 C566 627 682 737 855 690 C1016 646 1115 758 1308 724"/></svg></div>
+
+  <main class="phone" id="phone"><button class="install-chip" id="installChip">Add to Home Screen</button>
+    <div class="toast" id="toast">I see it.</div>
+
+    <!-- Splash -->
+    <section class="screen active splash" id="splash">
+      <div>
+        <div class="status"><span>9:41</span><span>●●●</span></div>
+        <div class="brand" style="margin-top:18px">MINUKIMI</div>
+        <div class="splash-art"><div class="splash-weave"><svg viewBox="0 0 420 250"><defs><linearGradient id="sga" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff7898"/><stop offset="1" stop-color="#9b86ff"/></linearGradient><linearGradient id="sgb" x1="1" y1="0" x2="0" y2="1"><stop stop-color="#74d7c7"/><stop offset="1" stop-color="#8f82ff"/></linearGradient></defs><path d="M-20 66 C72 6 108 104 176 78 C220 62 247 6 312 24 C362 38 395 86 438 66" stroke="url(#sga)"/><path d="M-12 150 C62 190 106 102 171 127 C216 143 244 196 304 177 C357 160 392 114 440 132" stroke="url(#sgb)"/><path d="M-8 226 C54 173 109 234 165 210 C221 186 244 137 286 136 C335 136 370 183 436 166" stroke="url(#sga)" opacity=".56"/></svg></div></div><div class="splash-copy">
+        <h1>Someone you haven’t met yet.</h1>
+        <p>A 20-profile UX test for one better question and one more intentional gesture.</p>
+        <div class="dots"><span class="dot on"></span><span class="dot"></span><span class="dot"></span></div>
+        <button class="cta" style="width:100%" onclick="show('intake')">Start the test</button>
+      </div>
+    </section>
+
+    <!-- Research intake -->
+    <section class="screen intake-screen" id="intake">
+      <div class="status"><span>9:41</span><span>●●●</span></div>
+      <div class="topbar"><button class="icon-btn" onclick="show('splash')">←</button><div class="brand">MINUKIMI</div><span style="width:40px"></span></div>
+      <div class="intake-wrap">
+        <div class="brand" style="font-size:10px;color:#8e90a0">RESEARCH SESSION</div>
+        <h1>Before we start.</h1>
+        <p>Three quick context questions. There are no right answers, and the test will not show you any score.</p>
+        <div class="intake-card"><label>Age group</label><select id="ageGroup"><option value="">Choose one</option><option>18–24</option><option>25–29</option><option>30–34</option><option>35–39</option><option>40–44</option><option>45–54</option><option>55+</option><option>Prefer not to say</option></select></div>
+        <div class="intake-card"><label>Gender — optional</label><select id="gender"><option value="">Choose one</option><option>Woman</option><option>Man</option><option>Non-binary / another identity</option><option>Prefer not to say</option></select></div>
+        <div class="intake-card"><label>Dating apps you know or use</label><div class="multi-choice" id="appsChoice"><button type="button" data-v="Tinder">Tinder</button><button type="button" data-v="Bumble">Bumble</button><button type="button" data-v="Hinge">Hinge</button><button type="button" data-v="Other">Other</button><button type="button" data-v="None">None</button></div></div>
+        <div class="intake-card"><label>Dating-app use in the last 6 months</label><div class="multi-cho
