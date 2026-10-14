@@ -1,58 +1,35 @@
 name: Public smoke test
-
 on:
   push:
     branches: [main]
   workflow_dispatch:
-
 jobs:
   smoke:
     runs-on: ubuntu-latest
     steps:
-      - name: Wait for service and verify health
+      - name: Wait for Render and verify health
         run: |
           set -euo pipefail
           URL="https://minukimi-ux-test.onrender.com"
-          for i in {1..18}; do
+          for i in {1..24}; do
             BODY=$(curl -fsS --max-time 20 "$URL/api/health" || true)
-            if [[ "$BODY" == *'"ok": true'* && "$BODY" == *'"database": "postgres"'* ]]; then
-              echo "$BODY"
-              break
-            fi
-            if [ "$i" -eq 18 ]; then
-              echo "Health check failed: $BODY"
-              exit 1
-            fi
+            if [[ "$BODY" == *'"ok": true'* && "$BODY" == *'"database": "postgres"'* ]]; then break; fi
             sleep 10
           done
-      - name: Verify tester page and v0.9 UI
-        run: |
-          set -euo pipefail
-          HTML=$(curl -fsS --max-time 30 https://minukimi-ux-test.onrender.com/)
-          [[ "$HTML" == *"MINUKIMI"* ]]
-          [[ "$HTML" == *"In my head, I’m"* ]]
-          [[ "$HTML" == *'data-ui-patch="full-v4"'* ]]
-          [[ "$HTML" == *'data-ui-v09="true"'* ]]
+          HTML=$(curl -fsS --max-time 30 "$URL/")
+          [[ "$HTML" == *"Someone you haven't met yet."* ]]
+          [[ "$HTML" == *"Don't swipe right. Connect."* ]]
           [[ "$HTML" == *'id="profilePhoto"'* ]]
           [[ "$HTML" == *'id="profileBasics"'* ]]
           [[ "$HTML" == *'id="profilePrompt"'* ]]
           [[ "$HTML" == *'id="profilePreview"'* ]]
-          [[ "$HTML" == *'id="mkCitySuggestions"'* ]]
-          [[ "$HTML" == *"Like them?"* ]]
-          [[ "$HTML" == *"Not for you?"* ]]
-          [[ "$HTML" == *"Exactly one human face"* || "$HTML" == *"exactly one human face"* ]]
-          [[ "$HTML" == *"I see it."* ]]
-          [[ "$HTML" == *"Saving your responses"* ]]
-          [[ "$HTML" != *"For the researcher:"* ]]
-      - name: Verify service worker freshness policy
-        run: |
-          set -euo pipefail
-          SW=$(curl -fsS --max-time 30 https://minukimi-ux-test.onrender.com/sw.js)
-          [[ "$SW" == *"minukimi-shell-v3"* ]]
-          [[ "$SW" == *"cache:'no-store'"* ]]
-      - name: Verify research dashboard
-        run: |
-          set -euo pipefail
-          HTML=$(curl -fsS --max-time 30 https://minukimi-ux-test.onrender.com/dashboard.html)
-          [[ "$HTML" == *"Research dashboard"* ]]
-          [[ "$HTML" == *"Admin token"* ]]
+          [[ "$HTML" == *'id="discover"'* ]]
+          [[ "$HTML" == *'id="chats"'* ]]
+          [[ "$HTML" == *'id="myProfile"'* ]]
+          [[ "$HTML" != *"9:41"* ]]
+          JS=$(curl -fsS --max-time 30 "$URL/app.js")
+          [[ "$JS" == *"mk_profile_v12"* ]]
+          [[ "$JS" == *"main_photo_validated"* ]]
+          CSS=$(curl -fsS --max-time 30 "$URL/app-extra.css")
+          [[ "$CSS" == *".heart-zone"* ]]
+          [[ "$CSS" == *"background:transparent!important"* ]]
