@@ -1,0 +1,53 @@
+KIMI</div><span class="pill">quick recall</span></div>
+      <div class="test-head"><div class="brand" style="font-size:10px;color:#8e90a0">AFTER THE SESSION</div><h1>Who do you remember?</h1><p>Select every face you remember seeing. Don’t overthink it.</p></div>
+      <div class="memory-grid" id="memoryGrid1"></div>
+      <div class="test-actions"><button class="cta" onclick="saveMemoryStep1()">Continue</button></div>
+    </section>
+
+    <!-- Memory test 2 -->
+    <section class="screen test-screen" id="memory2">
+      <div class="status"><span>9:41</span><span>●●●</span></div><div class="topbar"><div class="brand">MINUKIMI</div><span class="pill">interest recall</span></div>
+      <div class="test-head"><h1>Who would you want to see again?</h1><p>Select the people you’d genuinely be curious to reopen.</p></div>
+      <div class="memory-grid" id="memoryGrid2"></div>
+      <div class="test-actions"><button class="cta secondary" onclick="show('memory1')">Back</button><button class="cta" onclick="saveMemoryStep2()">Continue</button></div>
+    </section>
+
+    <!-- Memory test 3 -->
+    <section class="screen test-screen" id="memory3">
+      <div class="status"><span>9:41</span><span>●●●</span></div><div class="topbar"><div class="brand">MINUKIMI</div><span class="pill">final questions</span></div>
+      <div class="test-head"><h1>One last minute.</h1><p>We care more about what you actually remember and want to do than whether you “liked the idea.”</p></div>
+      <div class="test-card"><label>What do you remember about any of the people?</label><textarea id="memoryText" placeholder="A line, a detail, a feeling, anything that stuck…"></textarea></div>
+      <div class="test-card"><label>Which way would you want to show interest tomorrow?</label><div class="choice-row" id="gestureChoice"><button class="choice-chip" data-v="gesture" onclick="pickChoice('gestureChoice',this)">Connect gesture</button><button class="choice-chip" data-v="button" onclick="pickChoice('gestureChoice',this)">Button</button><button class="choice-chip" data-v="swipe" onclick="pickChoice('gestureChoice',this)">Swipe</button></div></div>
+      <div class="test-card"><label>Would you come back tomorrow for five new people?</label><div class="choice-row" id="returnChoice"><button class="choice-chip" data-v="yes" onclick="pickChoice('returnChoice',this)">Yes</button><button class="choice-chip" data-v="maybe" onclick="pickChoice('returnChoice',this)">Maybe</button><button class="choice-chip" data-v="no" onclick="pickChoice('returnChoice',this)">No</button></div></div>
+      <div class="test-card"><label>Finish this, if you want</label><textarea id="ownPrompt" maxlength="220" placeholder="In my head, I’m…"></textarea></div>
+      <div class="test-actions"><button class="cta secondary" onclick="show('memory2')">Back</button><button class="cta" onclick="finishResearch()">Finish test</button></div>
+    </section>
+
+    <!-- Completion -->
+    <section class="screen test-screen" id="results">
+      <div class="status"><span>9:41</span><span>●●●</span></div><div class="topbar"><div class="brand">MINUKIMI</div><span class="pill">complete</span></div>
+      <div class="test-head"><div class="brand" style="font-size:10px;color:#8e90a0">THANK YOU</div><h1>That’s it.</h1><p>Your choices have been saved on this device. We intentionally don’t show scores or comparisons here — that would bias future tests.</p></div>
+      <div class="result-note"><b>For the researcher:</b><br>Download the session file below. It contains anonymous test metadata, profile order, dwell time, connect/pass actions, recall selections and final answers.</div>
+      <div class="test-card"><label>Session ID</label><div id="completionId" style="font-family:ui-monospace,monospace;font-size:13px;color:#626575;word-break:break-all"></div></div>
+      <div class="test-actions"><button class="cta secondary" id="fallbackDownload" style="display:none" onclick="exportResearch()">Download backup file</button></div>
+      <div class="test-actions" style="padding-top:0"><button class="cta secondary" onclick="resetResearch()">New test session</button></div>
+    </section>
+
+    <!-- Match modal -->
+    <div class="modal" id="matchModal"><div class="match-card"><div class="match-lines"><svg viewBox="0 0 300 118"><defs><linearGradient id="mg1" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ff7898"/><stop offset="1" stop-color="#ae8dff"/></linearGradient><linearGradient id="mg2" x1="1" y1="0" x2="0" y2="1"><stop stop-color="#73d8c7"/><stop offset="1" stop-color="#8f82ff"/></linearGradient></defs><path d="M-5 72 C57 26 89 87 127 62 C142 52 149 47 157 50" stroke="url(#mg1)"/><path d="M305 34 C248 84 217 29 178 57 C168 65 160 68 151 65" stroke="url(#mg2)"/><path class="cross" d="M148 63 C155 57 161 54 168 55" stroke="#b08fff"/></svg></div><div class="brand" style="margin-bottom:14px">MINUKIMI</div><h2>You found each other.</h2><p id="matchText">Maya connected with you too.</p><div class="match-actions"><button class="cta" onclick="closeMatch();openChat('Maya')">Say hello</button><button class="cta secondary" onclick="closeMatch()">Keep looking</button></div></div></div>
+
+    <!-- Stop modal -->
+    <div class="modal" id="stopModal"><div class="stop-card"><span class="k">KIMI · quick exit</span><h3>End this connection?</h3><p>KIMI is never sent as a message. It simply opens this exit. You can also use End, Block or Report from the menu at any time.</p><div class="stop-grid"><button class="cta danger" onclick="endChat(false)">End chat</button><button class="cta report" onclick="endChat(true)">End & report</button><button class="cta secondary" onclick="hideStop()">Cancel</button></div></div></div>
+  </main>
+</div>
+<script>
+const baseProfiles=[
+  {id:'p01',name:'Maya',age:31,city:'London',job:'Product designer',condition:'prompt',text:'the woman who moves to Lisbon for six months and finally learns to surf.',focus:'50% 20%',zoom:'1.00',photo:'https://images.unsplash.com/photo-1748865002392-d914228b77c4?auto=format&fit=crop&fm=jpg&ixid=NHwxMjA3fDA%3D&ixlib=rb-4.1.0&q=72&w=1200'},
+  {id:'c01',name:'Rose',age:28,city:'London',job:'Marketing manager',condition:'control',text:'Rooftop drinks, spontaneous weekends away and people who can actually pick a restaurant.',focus:'50% 22%',zoom:'1.01',photo:'https://images.unsplash.com/photo-1500771181897-517651ae4eda?auto=format&fit=crop&fm=jpg&ixid=NHwxMjA3fDA%3D&ixlib=rb-4.1.0&q=72&w=1200'},
+  {id:'c02',name:'Blake',age:33,city:'Dublin',job:'Software engineer',condition:'control',text:'Gym three times a week, sci-fi far too often, learning how not to look at a screen after 10pm.',focus:'50% 22%',zoom:'1.00',photo:'https://images.unsplash.com/photo-1756561878440-5601ada5f0c9?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=72&w=1200'},
+  {id:'p02',name:'Daniel',age:38,city:'London',job:'Architect',condition:'prompt',text:'calmer, braver, and the man people call when something goes wrong.',focus:'50% 18%',zoom:'1.00',photo:'https://images.unsplash.com/photo-1771956649356-51ed722e59bf?auto=format&fit=crop&fm=jpg&ixid=NHwxMjA3fDA%3D&ixlib=rb-4.1.0&q=72&w=1200'},
+  {id:'p03',name:'Lina',age:29,city:'Barcelona',job:'Producer',condition:'prompt',text:'already living near the sea, wearing linen and kissing first.',focus:'50% 18%',zoom:'1.01',photo:'https://images.unsplash.com/photo-1676229155368-d7830dd02d04?auto=format&fit=crop&fm=jpg&ixid=NHwxMjA3fDA%3D&ixlib=rb-4.1.0&q=72&w=1200'},
+  {id:'c03',name:'Joanna',age:36,city:'Prague',job:'Lawyer',condition:'control',text:'Old cities, long dinners and people who have something to say after the first drink.',focus:'50% 21%',zoom:'1.01',photo:'https://images.unsplash.com/photo-1757348665310-0b68ed0ebc30?auto=format&fit=crop&fm=jpg&ixid=NHwxMjA3fDA%3D&ixlib=rb-4.1.0&q=72&w=1200'},
+  {id:'p04',name:'Ethan',age:34,city:'Amsterdam',job:'Sound engineer',condition:'prompt',text:'the version of me that disappears for three days and comes back clearer.',focus:'50% 20%',zoom:'1.00',photo:'https://images.unsplash.com/photo-1744551154690-fb14ef828a39?auto=format&fit=crop&fm=jpg&ixid=NHwxMjA3fDA%3D&ixlib=rb-4.1.0&q=72&w=1200'},
+  {id:'c04',name:'Nicky',age:30,city:'Berlin',job:'Event producer',condition:'control',text:'Night owl, coffee addict, much easier to understand in person than in a bio.',focus:'50% 22%',zoom:'1.00',photo:'https://images.unsplash.com/photo-1649675728586-647922b8ed7b?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=72&w=1200'},
+  {id:'p05',name:'Nora',age:40,city:'Copenhagen',job:'Psychotherapist',condition:'prompt',text:'less careful, more sun-warmed, and the person who says yes before overthinking.',focus:'50% 22%',zoom:'1.00',photo:'https://images.unsplash.com/photo-1733971717497-6835242a3e09?auto=format&fit=crop&fm=jpg&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&ixlib=rb-4.1.0&q=72&w=
