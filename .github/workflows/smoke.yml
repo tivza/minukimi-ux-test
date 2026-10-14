@@ -25,13 +25,16 @@ jobs:
             fi
             sleep 10
           done
-      - name: Verify tester page
+      - name: Verify tester page and current UI patch
         run: |
           set -euo pipefail
           HTML=$(curl -fsS --max-time 30 https://minukimi-ux-test.onrender.com/)
           [[ "$HTML" == *"MINUKIMI"* ]]
           [[ "$HTML" == *"In my head, I’m"* ]]
           [[ "$HTML" == *"photo-1758764340880-d0d5c64e348a"* ]]
+          [[ "$HTML" == *'data-ui-patch="photo-blur-v1"'* ]]
+          [[ "$HTML" == *"Saving your responses"* ]]
+          [[ "$HTML" != *"For the researcher:"* ]]
       - name: Verify service worker freshness policy
         run: |
           set -euo pipefail
