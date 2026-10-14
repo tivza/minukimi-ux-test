@@ -13,26 +13,31 @@ jobs:
         run: |
           set -euo pipefail
           URL="https://minukimi-ux-test.onrender.com"
-          for i in {1..12}; do
+          for i in {1..18}; do
             BODY=$(curl -fsS --max-time 20 "$URL/api/health" || true)
             if [[ "$BODY" == *'"ok": true'* && "$BODY" == *'"database": "postgres"'* ]]; then
               echo "$BODY"
               break
             fi
-            if [ "$i" -eq 12 ]; then
+            if [ "$i" -eq 18 ]; then
               echo "Health check failed: $BODY"
               exit 1
             fi
             sleep 10
           done
-      - name: Verify tester page and current UI patch
+      - name: Verify tester page and v0.8 UI
         run: |
           set -euo pipefail
           HTML=$(curl -fsS --max-time 30 https://minukimi-ux-test.onrender.com/)
           [[ "$HTML" == *"MINUKIMI"* ]]
           [[ "$HTML" == *"In my head, I’m"* ]]
-          [[ "$HTML" == *"photo-1758764340880-d0d5c64e348a"* ]]
-          [[ "$HTML" == *'data-ui-patch="photo-blur-v1"'* ]]
+          [[ "$HTML" == *'data-ui-patch="full-v4"'* ]]
+          [[ "$HTML" == *'id="profilePhoto"'* ]]
+          [[ "$HTML" == *'id="profileBasics"'* ]]
+          [[ "$HTML" == *'id="profilePrompt"'* ]]
+          [[ "$HTML" == *'id="profilePreview"'* ]]
+          [[ "$HTML" == *"Exactly one human face"* || "$HTML" == *"exactly one human face"* ]]
+          [[ "$HTML" == *"I see it."* ]]
           [[ "$HTML" == *"Saving your responses"* ]]
           [[ "$HTML" != *"For the researcher:"* ]]
       - name: Verify service worker freshness policy
