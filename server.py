@@ -20,12 +20,25 @@ PORT = int(os.environ.get("PORT", "8000"))
 ADMIN_TOKEN = os.environ.get("ADMIN_TOKEN", "").strip()
 MAX_BODY = 2_000_000
 APP_VERSION = "0.7"
+INDEX_PATH = ROOT / "index.html"
+INDEX_PARTS_DIR = ROOT / "index_parts"
 
 # On local runs, generate a temporary token instead of silently exposing admin
 # endpoints behind a known default. Render sets ADMIN_TOKEN from render.yaml.
 if not ADMIN_TOKEN:
     ADMIN_TOKEN = secrets.token_urlsafe(24)
     print("ADMIN_TOKEN was not set. Temporary local admin token:", ADMIN_TOKEN)
+
+
+def assemble_index():
+    """Rebuild the tester shell from repository chunks before serving it."""
+    parts = sorted(INDEX_PARTS_DIR.glob("index.part.*"))
+    if not parts:
+        if INDEX_PATH.exists():
+            return
+        raise RuntimeError("index.html and index_parts are missing")
+    INDEX_PATH.write_bytes(b"".join(p.read_bytes() for p in parts))
+    print(f"Assembled index.html from {len(parts)} chunks ({INDEX_PATH.stat().st_size} bytes)")
 
 
 def utcnow():
@@ -263,6 +276,7 @@ class Handler(SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
+    assemble_index()
     init_db()
     print(f"MINUKIMI research server v{APP_VERSION}: http://localhost:{PORT}")
     print("Storage:", "Render Postgres" if using_postgres() else f"SQLite ({DB_PATH})")
