@@ -15,7 +15,7 @@ jobs:
           URL="https://minukimi-ux-test.onrender.com"
           for i in {1..12}; do
             BODY=$(curl -fsS --max-time 20 "$URL/api/health" || true)
-            if echo "$BODY" | grep -q '"ok": true' && echo "$BODY" | grep -q '"database": "postgres"'; then
+            if [[ "$BODY" == *'"ok": true'* && "$BODY" == *'"database": "postgres"'* ]]; then
               echo "$BODY"
               break
             fi
@@ -29,11 +29,18 @@ jobs:
         run: |
           set -euo pipefail
           HTML=$(curl -fsS --max-time 30 https://minukimi-ux-test.onrender.com/)
-          echo "$HTML" | grep -q "MINUKIMI"
-          echo "$HTML" | grep -q "In my head, I’m"
+          [[ "$HTML" == *"MINUKIMI"* ]]
+          [[ "$HTML" == *"In my head, I’m"* ]]
+          [[ "$HTML" == *"photo-1758764340880-d0d5c64e348a"* ]]
+      - name: Verify service worker freshness policy
+        run: |
+          set -euo pipefail
+          SW=$(curl -fsS --max-time 30 https://minukimi-ux-test.onrender.com/sw.js)
+          [[ "$SW" == *"minukimi-shell-v3"* ]]
+          [[ "$SW" == *"cache:'no-store'"* ]]
       - name: Verify research dashboard
         run: |
           set -euo pipefail
           HTML=$(curl -fsS --max-time 30 https://minukimi-ux-test.onrender.com/dashboard.html)
-          echo "$HTML" | grep -q "Research dashboard"
-          echo "$HTML" | grep -q "Admin token"
+          [[ "$HTML" == *"Research dashboard"* ]]
+          [[ "$HTML" == *"Admin token"* ]]
